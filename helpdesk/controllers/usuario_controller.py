@@ -4,7 +4,8 @@ from services.usuario_service import UsuarioServices
 usuario_bp = Blueprint("usuarios",__name__)
 
 class UsuarioController():
-     def valida_dados(dados):
+    @staticmethod
+    def valida_dados(dados):
           if not dados:
                return jsonify({"Erro": "JSON inválido"}), 400
           if len(dados.get("nome", "")) < 3:

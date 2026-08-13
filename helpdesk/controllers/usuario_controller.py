@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from services.services import UsuarioServices
+from services.usuario_service import UsuarioServices
 
 class UsuarioController():
      def valida_dados(dados):

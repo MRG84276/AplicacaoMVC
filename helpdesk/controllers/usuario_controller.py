@@ -1,6 +1,8 @@
 from flask import jsonify, request
 from services.usuario_service import UsuarioServices
 
+usuario_bp = Blueprint("usuarios",__name__)
+
 class UsuarioController():
      def valida_dados(dados):
           if not dados:

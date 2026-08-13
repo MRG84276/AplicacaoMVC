@@ -1,5 +1,3 @@
-# models/chamado.py
-from datetime import datetime
 from database import db
 
 class Chamado(db.Model):

@@ -1,6 +1,6 @@
 # models/chamado.py
 from datetime import datetime
-from extensions import db
+from database import db
 
 class Chamado(db.Model):
     __tablename__ = 'chamado'

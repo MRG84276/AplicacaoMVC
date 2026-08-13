@@ -1,5 +1,4 @@
-# models/usuario.py
-from extensions import db
+from database import db
 
 class Usuario(db.Model): 
     __tablename__ = 'Usuario'

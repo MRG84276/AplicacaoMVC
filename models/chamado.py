@@ -1,6 +1,7 @@
 from datetime import datetime
 from database import db
 
+
 class Chamado(db.Model):
     __tablename__ = 'chamado'
     
@@ -12,8 +13,7 @@ class Chamado(db.Model):
     tecnico = db.Column(db.String(80), nullable=True)                       
     data_abertura = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     
-    # Chave estrangeira 
-    usuario_id = db.Column(db.Integer, db.ForeignKey('Usuario.id'), nullable=True)
+    usuario_id = db.Column(db.Integer, db.ForeignKey('Usuario.id'), nullable=False)
 
     def to_dict(self):
         return {
@@ -23,6 +23,6 @@ class Chamado(db.Model):
             'prioridade': self.prioridade,
             'status': self.status,
             'tecnico': self.tecnico,
-            'data_abertura': self.data_abertura.isoformat(),
+            'data_abertura': self.data_abertura.isoformat() if self.data_abertura else None,
             'usuario_id': self.usuario_id
         }

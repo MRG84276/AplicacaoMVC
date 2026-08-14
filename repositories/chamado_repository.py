@@ -1,6 +1,7 @@
 from database import db
 from models.chamado import Chamado
 
+
 class ChamadoRepository:
 
     @staticmethod
@@ -45,7 +46,7 @@ class ChamadoRepository:
                 chamado.tecnico = dados['tecnico']
             if 'usuario_id' in dados:
                 chamado.usuario_id = dados['usuario_id']
-                
+
             db.session.commit()
             return chamado
         return None
@@ -64,7 +65,15 @@ class ChamadoRepository:
         chamado = Chamado.query.get(chamado_id)
         if chamado:
             chamado.tecnico = nome_tecnico
-            chamado.status = 'Em Andamento'
+            db.session.commit()
+            return chamado
+        return None
+
+    @staticmethod
+    def iniciar_chamado(chamado_id: int):
+        chamado = Chamado.query.get(chamado_id)
+        if chamado:
+            chamado.status = 'Em atendimento'
             db.session.commit()
             return chamado
         return None
@@ -73,7 +82,7 @@ class ChamadoRepository:
     def fechar_chamado(chamado_id: int):
         chamado = Chamado.query.get(chamado_id)
         if chamado:
-            chamado.status = 'Concluído'
+            chamado.status = 'Encerrado'
             db.session.commit()
             return chamado
         return None

@@ -1,95 +1,119 @@
 from flask import Blueprint, jsonify, request
 from services.usuario_service import UsuarioServices
 
-usuario_bp = Blueprint("usuarios",__name__)
+usuario_bp = Blueprint("usuarios", __name__)
 
-class UsuarioController():
+
+class UsuarioController:
+
     @staticmethod
     def valida_dados(dados):
-          if not dados:
-               return jsonify({"Erro": "JSON inválido"}), 400
-          if len(dados.get("nome", "")) < 3:
-               return jsonify({"Erro": "Nome inválido"}), 400
-          email = dados.get("email")
-          if not email:
+        if not dados or not isinstance(dados, dict):
+            return jsonify({"Erro": "JSON inválido ou ausente"}), 400
+
+        nome = dados.get("nome", "")
+        if not nome or len(nome) < 3:
+            return jsonify({"Erro": "Nome inválido (mínimo 3 caracteres)"}), 400
+
+        email = dados.get("email")
+        if not email:
             return jsonify({"Erro": "Email obrigatório"}), 400
-          if "@" not in email:
-              return jsonify({"Erro": "Email inválido"}), 400
-          setor = dados.get("setor")
-          if not setor:
-               return jsonify({"Erro": "Setor obrigatório"}), 400
-          return True         
-     
-@staticmethod
-def listar():
-    resultado = UsuarioServices.consulta_usuarios()
-    return jsonify(resultado)
+        if "@" not in email:
+            return jsonify({"Erro": "Email inválido"}), 400
 
-@staticmethod
-def cadastrar():
-    dados = request.json
-    valida_dados = UsuarioController.valida_dados(dados)
-    if not valida_dados:
-        return jsonify({"Erro": "Não foi possível validar os dados"}), 400
-    
+        setor = dados.get("setor")
+        if not setor:
+            return jsonify({"Erro": "Setor obrigatório"}), 400
 
-    usuario = UsuarioServices.cadastra_usuario(
-        nome=dados["nome"],
-        email=dados["email"],
-        setor=dados["setor"],
-        ativo=dados.get("ativo", True)
-    )
-     
-    return jsonify({
-       "mensagem": "Usuario cadastrado",
-       "id": usuario.id
-    })
+        return True
 
-def atualizar(id):
-    dados = request.json
-    valida_dados = UsuarioController.valida_dados(dados)
-    if not valida_dados:
-        return jsonify({"Erro": "Não foi possível validar os dados"}), 400
-    
-    usuario = UsuarioServices.atualiza_usuario(
-        id=id,
-        nome=dados["nome"],
-        email=dados["email"],
-        setor=dados["setor"]
-    )
-    
-    if not usuario:
-        return jsonify({"Erro": "Usuario não encontrado"}), 404
-    
-    return jsonify({
-        "mensagem": "Usuario aualizado",
-        "id": usuario.id
-    })
+    @staticmethod
+    def listar():
+        resultado = UsuarioServices.consulta_usuarios()
+        return jsonify(resultado), 200
 
-def excluir(id):
-    usuario = UsuarioServices.exclui_usuario(id)
-    if not usuario:
-       return jsonify({"Erro": "Usuario não encontrado"}), 404
-    return jsonify({
-        "mensagem": "Usuario excluido",
-        "id": usuario.id
-    })
+    @staticmethod
+    def cadastrar():
+        dados = request.get_json(silent=True)
+        validacao = UsuarioController.valida_dados(dados)
+        if validacao is not True:
+            return validacao  # Retorna a resposta de erro diretamente (jsonify, 400)
 
-def ativar(id):
-    usuario = UsuarioServices.ativa_usuario(id)
-    if not usuario:
-        return jsonify({"Erro": "Usuario não encontrado"}), 404
-    return jsonify({
-        "mensagem": "Usuario ativado",
-        "id": usuario.id
-    })
+        usuario = UsuarioServices.cadastra_usuario(
+            nome=dados["nome"],
+            email=dados["email"],
+            setor=dados["setor"],
+            ativo=dados.get("ativo", True)
+        )
 
-def desativar(id):
-    usuario = UsuarioServices.desativa_usuario(id)
-    if not usuario:
-        return jsonify({"Erro": "Usuario não encntrado"}), 404
-    return jsonify({
-        "mensagem": "Usuario Desativado",
-        "id": usuario.id
-    })
+        if not usuario:
+            return jsonify({"Erro": "Não foi possível cadastrar o usuário"}), 400
+
+        usuario_id = usuario.get("id") if isinstance(usuario, dict) else usuario.id
+
+        return jsonify({
+            "mensagem": "Usuário cadastrado com sucesso",
+            "id": usuario_id
+        }), 201
+
+    @staticmethod
+    def atualizar(id):
+        dados = request.get_json(silent=True)
+        validacao = UsuarioController.valida_dados(dados)
+        if validacao is not True:
+            return validacao
+
+        usuario = UsuarioServices.atualiza_usuario(
+            id=id,
+            nome=dados["nome"],
+            email=dados["email"],
+            setor=dados["setor"]
+        )
+
+        if not usuario:
+            return jsonify({"Erro": "Usuário não encontrado"}), 404
+
+        usuario_id = usuario.get("id") if isinstance(usuario, dict) else usuario.id
+
+        return jsonify({
+            "mensagem": "Usuário atualizado com sucesso",
+            "id": usuario_id
+        }), 200
+
+    @staticmethod
+    def excluir(id):
+        sucesso = UsuarioServices.exclui_usuario(id)
+        if not sucesso:
+            return jsonify({"Erro": "Usuário não encontrado"}), 404
+
+        return jsonify({
+            "mensagem": "Usuário excluído com sucesso",
+            "id": id
+        }), 200
+
+    @staticmethod
+    def ativar(id):
+        usuario = UsuarioServices.ativa_usuario(id)
+        if not usuario:
+            return jsonify({"Erro": "Usuário não encontrado"}), 404
+
+        usuario_id = usuario.get("id") if isinstance(usuario, dict) else usuario.id
+
+        return jsonify({
+            "mensagem": "Usuário ativado com sucesso",
+            "id": usuario_id
+        }), 200
+
+    @staticmethod
+    def desativar(id):
+        usuario = UsuarioServices.desativa_usuario(id)
+        if not usuario:
+            return jsonify({"Erro": "Usuário não encontrado"}), 404
+
+        usuario_id = usuario.get("id") if isinstance(usuario, dict) else usuario.id
+
+        return jsonify({
+            "mensagem": "Usuário desativado com sucesso",
+            "id": usuario_id
+        }), 200
 

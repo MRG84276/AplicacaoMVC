@@ -11,7 +11,8 @@ class UsuarioRepository:
         novo_usuario = Usuario(
             nome=dados.get('nome'),
             email=dados.get('email'),
-            setor=dados.get('setor')
+            setor=dados.get('setor'),
+            ativo=dados.get('ativo', True) 
         )
         db.session.add(novo_usuario)
         db.session.commit()
@@ -19,7 +20,6 @@ class UsuarioRepository:
 
     @staticmethod
     def pesquisa_email(email):
-     
         return Usuario.query.filter_by(email=email).first()
 
     @staticmethod
@@ -36,6 +36,8 @@ class UsuarioRepository:
                 usuario.email = dados['email']
             if 'setor' in dados:
                 usuario.setor = dados['setor']
+            if 'ativo' in dados:
+                usuario.ativo = dados['ativo']
             
             db.session.commit()
         return usuario
@@ -53,6 +55,7 @@ class UsuarioRepository:
     def ativar_usuario(id):
         usuario = Usuario.query.get(id)
         if usuario:
+            usuario.ativo = True  
             db.session.commit()
         return usuario
 
@@ -60,5 +63,6 @@ class UsuarioRepository:
     def desativar_usuario(id):
         usuario = Usuario.query.get(id)
         if usuario:
+            usuario.ativo = False  
             db.session.commit()
         return usuario

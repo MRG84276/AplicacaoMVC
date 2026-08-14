@@ -26,6 +26,16 @@ class UsuarioController:
             return jsonify({"Erro": "Setor obrigatório"}), 400
 
         return True
+     
+
+    @staticmethod
+    def index():
+        """Retorna uma mensagem de boas-vindas ou a lista inicial."""
+        return jsonify({
+            "mensagem": "API de Chamados e Usuários ativa e rodando!",
+            "status": "online"
+        }), 200
+
 
     @staticmethod
     def listar():

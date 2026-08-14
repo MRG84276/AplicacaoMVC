@@ -16,10 +16,6 @@ class UsuarioRepository:
 
     @staticmethod
     def cadastrar_usuario(dados: dict):
-        """
-        Cria um novo usuário na base de dados a partir de um dicionário.
-        Exemplo de 'dados': {'nome': 'Carlos', 'email': 'carlos@empresa.com', 'setor': 'TI'}
-        """
         novo_usuario = Usuario(
             nome=dados.get('nome'),
             email=dados.get('email'),

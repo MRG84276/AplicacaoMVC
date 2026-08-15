@@ -129,7 +129,6 @@ class UsuarioController:
 
   @staticmethod
     def listar_chamados(id):
-        """Busca e retorna todos os chamados abertos por um usuário específico."""
         chamados = ChamadoService.buscar_por_usuario(id)
         return jsonify(chamados), 200
 

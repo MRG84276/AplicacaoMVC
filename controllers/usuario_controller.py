@@ -47,7 +47,7 @@ class UsuarioController:
         dados = request.get_json(silent=True)
         validacao = UsuarioController.valida_dados(dados)
         if validacao is not True:
-            return validacao  # Retorna a resposta de erro diretamente (jsonify, 400)
+            return validacao  
 
         usuario = UsuarioServices.cadastra_usuario(
             nome=dados["nome"],

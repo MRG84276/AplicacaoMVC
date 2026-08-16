@@ -1,83 +1,73 @@
 from flask import Blueprint, jsonify, request
-from services.chamado_service import ChamadoService
+from database import db
+from models.chamado import Chamado
+from models.usuario import Usuario
 
-chamado_bp = Blueprint("chamados", __name__)
+chamado_bp = Blueprint('chamado_bp', __name__)
 
-class ChamadoController:
+@chamado_bp.route('/', methods=['GET'])
+def listar_chamados():
+    chamados = Chamado.query.all()
+    return jsonify([c.to_dict() for c in chamados]), 200
 
-    @staticmethod
-    def listar():
-        chamados = ChamadoService.consulta_chamados()
-        return jsonify(chamados), 200
+@chamado_bp.route('/<int:id>', methods=['GET'])
+def obter_chamado(id):
+    chamado = Chamado.query.get_or_404(id)
+    return jsonify(chamado.to_dict()), 200
 
-    @staticmethod
-    def buscar_por_id(id):
-        chamado = ChamadoService.buscar_por_id(id)
-        if chamado:
-            return jsonify(chamado), 200
-        return jsonify({'erro': 'Chamado não encontrado'}), 404
+@chamado_bp.route('/', methods=['POST'])
+def criar_chamado():
+    dados = request.get_json()
+    if not dados or not dados.get('titulo') or not dados.get('descricao'):
+        return jsonify({'erro': 'Título e descrição são obrigatórios.'}), 400
 
-    @staticmethod
-    def buscar_por_usuario(usuario_id):
-        chamados = ChamadoService.buscar_por_usuario(usuario_id)
-        return jsonify(chamados), 200
+    novo_chamado = Chamado(
+        titulo=dados.get('titulo'),
+        descricao=dados.get('descricao'),
+        prioridade=dados.get('prioridade', 'Média'),
+        tecnico=dados.get('tecnico'),
+        usuario_id=dados.get('usuario_id')
+    )
+    db.session.add(novo_chamado)
+    db.session.commit()
+    return jsonify(novo_chamado.to_dict()), 201
 
-    @staticmethod
-    def cadastrar():
-        dados = request.get_json(silent=True)
-        
-        if not dados or 'titulo' not in dados or 'descricao' not in dados:
-            return jsonify({'erro': 'Título e descrição são obrigatórios'}), 400
+@chamado_bp.route('/<int:id>', methods=['PUT'])
+def atualizar_chamado(id):
+    chamado = Chamado.query.get_or_404(id)
+    dados = request.get_json()
 
-        novo_chamado = ChamadoService.cadastra_chamado(**dados)
-        return jsonify(novo_chamado), 201
+    chamado.titulo = dados.get('titulo', chamado.titulo)
+    chamado.descricao = dados.get('descricao', chamado.descricao)
+    chamado.prioridade = dados.get('prioridade', chamado.prioridade)
+    chamado.status = dados.get('status', chamado.status)
+    chamado.tecnico = dados.get('tecnico', chamado.tecnico)
 
-    @staticmethod
-    def atualizar(id):
-        dados = request.get_json(silent=True)
-        if not dados:
-            return jsonify({'erro': 'Dados não fornecidos'}), 400
+    db.session.commit()
+    return jsonify(chamado.to_dict()), 200
 
-        chamado_atualizado = ChamadoService.atualiza_chamado(id, **dados)
-        if chamado_atualizado:
-            return jsonify(chamado_atualizado), 200
-        return jsonify({'erro': 'Chamado não encontrado'}), 404
 
-    @staticmethod
-    def excluir(id):
-        sucesso = ChamadoService.exclui_chamado(id)
-        if sucesso:
-            return jsonify({'mensagem': 'Chamado excluído com sucesso'}), 200
-        return jsonify({'erro': 'Chamado não encontrado'}), 404
+@chamado_bp.route('/<int:id>', methods=['DELETE'])
+def deletar_chamado(id):
+    chamado = Chamado.query.get_or_404(id)
+    db.session.delete(chamado)
+    db.session.commit()
+    return jsonify({'mensagem': f'Chamado {id} removido com sucesso.'}), 200
 
-    @staticmethod
-    def atribuir_tecnico(id):
-        dados = request.get_json(silent=True) or {}
-        tecnico = dados.get('tecnico')
-        
-        if not tecnico:
-            return jsonify({'erro': 'Nome do técnico é obrigatório'}), 400
+@chamado_bp.route('/estatisticas', methods=['GET'])
+def obter_estatisticas():
+    total_chamados = Chamado.query.count()
+    abertos = Chamado.query.filter_by(status='Aberto').count()
+    em_andamento = Chamado.query.filter_by(status='Em Andamento').count()
+    fechados = Chamado.query.filter_by(status='Fechado').count()
+    total_usuarios = Usuario.query.count()
 
-        chamado = ChamadoService.atribuir_tecnico(id, tecnico)
-        if chamado:
-            return jsonify(chamado), 200
-        return jsonify({'erro': 'Chamado não encontrado'}), 404
-
-    @staticmethod
-    def iniciar(id):
-        chamado = ChamadoService.iniciar_chamado(id)
-        if chamado:
-            return jsonify(chamado), 200
-        return jsonify({'erro': 'Chamado não encontrado'}), 404
-
-    @staticmethod
-    def fechar(id):
-        chamado = ChamadoService.fechar_chamado(id)
-        if chamado:
-            return jsonify(chamado), 200
-        return jsonify({'erro': 'Chamado não encontrado'}), 404
-
-    @staticmethod
-    def obter_estatisticas():
-        estatisticas = ChamadoService.obter_estatisticas()
-        return jsonify(estatisticas), 200
+    return jsonify({
+        'total_chamados': total_chamados,
+        'status': {
+            'abertos': abertos,
+            'em_andamento': em_andamento,
+            'fechados': fechados
+        },
+        'total_usuarios': total_usuarios
+    }), 200

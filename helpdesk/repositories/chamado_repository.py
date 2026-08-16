@@ -1,4 +1,4 @@
-from database import db
+from helpdesk.database import db
 from helpdesk.models.chamado import Chamado
 
 

@@ -2,6 +2,7 @@ from helpdesk.database import db
 from helpdesk.models.usuario import Usuario
 
 class UsuarioRepository:
+     
     @staticmethod
     def consulta_tudo():
         return Usuario.query.all()
@@ -16,14 +17,21 @@ class UsuarioRepository:
 
     @staticmethod
     def cadastrar_usuario(dados: dict):
+        email = dados.get('email')
+        if not email:
+            return None, "O e-mail é obrigatório."
+
+        if Usuario.query.filter_by(email=email).first():
+            return None, "Já existe um usuário cadastrado com este e-mail."
+
         novo_usuario = Usuario(
             nome=dados.get('nome'),
-            email=dados.get('email'),
+            email=email,
             setor=dados.get('setor')
         )
         db.session.add(novo_usuario)
         db.session.commit()
-        return novo_usuario
+        return novo_usuario, None
 
     @staticmethod
     def atualizar_usuario(usuario_id: int, dados: dict):
@@ -43,11 +51,15 @@ class UsuarioRepository:
     @staticmethod
     def excluir_usuario(usuario_id: int):
         usuario = Usuario.query.get(usuario_id)
-        if usuario:
-            db.session.delete(usuario)
-            db.session.commit()
-            return True
-        return False
+        if not usuario:
+            return False, "Usuário não encontrado"
+        chamados_vinculados = Chamado.query.filter_by(usuario_id=usuario_id).first()
+        if chamados_vinculados:
+            return False, "Não é possível excluir um usuário que possui chamados vinculados."
+
+        db.session.delete(usuario)
+        db.session.commit()
+        return True, None
 
     @staticmethod
     def ativar_usuario(usuario_id: int):
@@ -55,7 +67,6 @@ class UsuarioRepository:
         if usuario and hasattr(usuario, 'ativo'):
             usuario.ativo = True
             db.session.commit()
-            return usuario
         return usuario
 
     @staticmethod
@@ -64,7 +75,6 @@ class UsuarioRepository:
         if usuario and hasattr(usuario, 'ativo'):
             usuario.ativo = False
             db.session.commit()
-            return usuario
         return usuario
 
     @staticmethod

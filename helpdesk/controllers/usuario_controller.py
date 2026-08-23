@@ -14,7 +14,6 @@ def criar_usuario():
     dados = request.get_json()
     if not dados.get('nome') or not dados.get('email'):
         return jsonify({'erro': 'Nome e e-mail são obrigatórios.'}), 400
-        
     usuario = UsuarioRepository.cadastrar_usuario(dados)
 
     if not usuario:

@@ -33,7 +33,13 @@ class ChamadoRepository:
     @staticmethod
     def atualizar_chamado(chamado_id: int, dados: dict):
         chamado = Chamado.query.get(chamado_id)
-        if chamado:
+        if not chamado:
+            return None, "Chamado não encontrado."
+
+        if 'usuario_id' in dados:
+            if not Usuario.query.get(dados['usuario_id']):
+                return None, f"Usuário com ID {dados['usuario_id']} não encontrado."
+            chamado.usuario_id = dados['usuario_id']
             if 'titulo' in dados:
                 chamado.titulo = dados['titulo']
             if 'descricao' in dados:
@@ -44,15 +50,13 @@ class ChamadoRepository:
                 chamado.status = dados['status']
             if 'tecnico' in dados:
                 chamado.tecnico = dados['tecnico']
-            if 'usuario_id' in dados:
-                chamado.usuario_id = dados['usuario_id']
+           
 
-            db.session.commit()
-            return chamado
-        return None
-
+        db.session.commit()
+        return chamado, None
+        
     @staticmethod
-    def excluir_chamado(chamado_id: int):
+    def excluir_chamado(chamado_id: int) -> bool:
         chamado = Chamado.query.get(chamado_id)
         if chamado:
             db.session.delete(chamado)
@@ -66,8 +70,7 @@ class ChamadoRepository:
         if chamado:
             chamado.tecnico = nome_tecnico
             db.session.commit()
-            return chamado
-        return None
+        return chamado
 
     @staticmethod
     def iniciar_chamado(chamado_id: int):
@@ -75,8 +78,7 @@ class ChamadoRepository:
         if chamado:
             chamado.status = 'Em atendimento'
             db.session.commit()
-            return chamado
-        return None
+        return chamado
 
     @staticmethod
     def fechar_chamado(chamado_id: int):
@@ -84,8 +86,7 @@ class ChamadoRepository:
         if chamado:
             chamado.status = 'Encerrado'
             db.session.commit()
-            return chamado
-        return None
+        return chamado
 
     @staticmethod
     def consulta_prioridade_alta():
@@ -95,6 +96,21 @@ class ChamadoRepository:
     def consulta_chamados_abertos():
         return Chamado.query.filter_by(status='Aberto').all()
 
+
     @staticmethod
     def estatisticas_chamados():
         return Chamado.query.all()
+
+        total = len(chamados)
+        abertos = sum(1 for c in chamados if c.status == 'Aberto')
+        em_atendimento = sum(1 for c in chamados if c.status == 'Em atendimento')
+        encerrados = sum(1 for c in chamados if c.status == 'Encerrado')
+        alta_prioridade = sum(1 for c in chamados if c.prioridade == 'Alta')
+
+        return {
+            'total_geral': total,
+            'abertos': abertos,
+            'em_atendimento': em_atendimento,
+            'encerrados': encerrados,
+            'alta_prioridade': alta_prioridade
+        }

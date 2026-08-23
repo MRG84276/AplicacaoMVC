@@ -4,7 +4,6 @@ from helpdesk.models.usuario import Usuario
 
 usuario_bp = Blueprint('usuario_bp', __name__)
 
-
 @usuario_bp.route('/', methods=['GET'])
 def listar_usuarios():
     usuarios = Usuario.get_all()

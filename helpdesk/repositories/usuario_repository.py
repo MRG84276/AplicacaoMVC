@@ -1,8 +1,9 @@
 from helpdesk.database import db
 from helpdesk.models.usuario import Usuario
 
+
 class UsuarioRepository:
-   
+    
     @staticmethod
     def consulta_tudo():
         return Usuario.query.all()
@@ -81,5 +82,4 @@ class UsuarioRepository:
     def deletar(usuario):
         db.session.delete(usuario)
         db.session.commit()
-        
         

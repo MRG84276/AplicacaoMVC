@@ -13,6 +13,8 @@ from helpdesk.models.chamado import Chamado
 from helpdesk.controllers.usuario_controller import usuario_bp
 from helpdesk.controllers.chamado_controller import chamado_bp
 
+from helpdesk.routers.routers import usuario_bp, chamado_bp
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'bravoFortKnox'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Usuario.db' 

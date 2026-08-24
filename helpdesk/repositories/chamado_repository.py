@@ -6,79 +6,112 @@ class ChamadoRepository:
 
     @staticmethod
     def consulta_tudo():
-        return Usuario.query.all()
+        return Chamado.query.all()
 
     @staticmethod
-    def buscar_por_id(usuario_id: int):
-        return Usuario.query.get(usuario_id)
+    def buscar_por_id(chamado_id: int):
+        return Chamado.query.get(chamado_id)
 
     @staticmethod
-    def pesquisa_email(email: str):
-        return Usuario.query.filter_by(email=email).first()
+    def buscar_por_usuario(usuario_id: int):
+        return Chamado.query.filter_by(usuario_id=usuario_id).all()
 
     @staticmethod
-    def cadastrar_usuario(dados: dict):
-        email = dados.get('email')
-        if not email:
-            return None, "O e-mail é obrigatório."
-
-        if Usuario.query.filter_by(email=email).first():
-            return None, "Já existe um usuário cadastrado com este e-mail."
-
-        novo_usuario = Usuario(
-            nome=dados.get('nome'),
-            email=email,
-            setor=dados.get('setor')
+    def cadastrar_chamado(dados: dict):
+        novo_chamado = Chamado(
+            titulo=dados.get('titulo'),
+            descricao=dados.get('descricao'),
+            prioridade=dados.get('prioridade', 'Média'),
+            status=dados.get('status', 'Aberto'),
+            tecnico=dados.get('tecnico'),
+            usuario_id=dados.get('usuario_id')
         )
-        db.session.add(novo_usuario)
+        db.session.add(novo_chamado)
         db.session.commit()
-        return novo_usuario, None
+        return novo_chamado
 
     @staticmethod
-    def atualizar_usuario(usuario_id: int, dados: dict):
-        usuario = Usuario.query.get(usuario_id)
-        if usuario:
-            if 'nome' in dados:
-                usuario.nome = dados['nome']
-            if 'email' in dados:
-                usuario.email = dados['email']
-            if 'setor' in dados:
-                usuario.setor = dados['setor']
+    def atualizar_chamado(chamado_id: int, dados: dict):
+        chamado = Chamado.query.get(chamado_id)
+        if not chamado:
+              return None, "Chamado não encontrado."
+
+        if 'usuario_id' in dados:
+            if not Usuario.query.get(dados['usuario_id']):    return None, f"Usuário com ID {dados['usuario_id']} não encontrado."
+            chamado.usuario_id = dados['usuario_id']
+
             
-            db.session.commit()
-            return usuario
-        return None
+        if 'titulo' in dados:
+            chamado.titulo = dados['titulo']
+        if 'descricao' in dados:
+            chamado.descricao = dados['descricao']
+        if 'prioridade' in dados:
+            chamado.prioridade = dados['prioridade']
+        if 'status' in dados:
+            chamado.status = dados['status']
+        if 'tecnico' in dados:
+            chamado.tecnico = dados['tecnico']
+           
 
-    @staticmethod
-    def excluir_usuario(usuario_id: int):
-        usuario = Usuario.query.get(usuario_id)
-        if not usuario:
-            return False, "Usuário não encontrado"
-        chamados_vinculados = Chamado.query.filter_by(usuario_id=usuario_id).first()
-        if chamados_vinculados:
-            return False, "Não é possível excluir um usuário que possui chamados vinculados."
-
-        db.session.delete(usuario)
         db.session.commit()
-        return True, None
-
+        return chamado, None
+        
     @staticmethod
-    def ativar_usuario(usuario_id: int):
-        usuario = Usuario.query.get(usuario_id)
-        if usuario and hasattr(usuario, 'ativo'):
-            usuario.ativo = True
+    def excluir_chamado(chamado_id: int) -> bool:
+        chamado = Chamado.query.get(chamado_id)
+        if chamado:
+            db.session.delete(chamado)
             db.session.commit()
-        return usuario
+            return True
+        return False
 
     @staticmethod
-    def desativar_usuario(usuario_id: int):
-        usuario = Usuario.query.get(usuario_id)
-        if usuario and hasattr(usuario, 'ativo'):
-            usuario.ativo = False
+    def atribuir_tecnico(chamado_id: int, nome_tecnico: str):
+        chamado = Chamado.query.get(chamado_id)
+        if chamado:
+            chamado.tecnico = nome_tecnico
             db.session.commit()
-        return usuario
+        return chamado
 
     @staticmethod
-    def deletar(usuario):
-        db.session.delete(usuario)
-        db.session.commit()
+    def iniciar_chamado(chamado_id: int):
+        chamado = Chamado.query.get(chamado_id)
+        if chamado:
+            chamado.status = 'Em atendimento'
+            db.session.commit()
+        return chamado
+
+    @staticmethod
+    def fechar_chamado(chamado_id: int):
+        chamado = Chamado.query.get(chamado_id)
+        if chamado:
+            chamado.status = 'Encerrado'
+            db.session.commit()
+        return chamado
+
+    @staticmethod
+    def consulta_prioridade_alta():
+        return Chamado.query.filter_by(prioridade='Alta').all()
+
+    @staticmethod
+    def consulta_chamados_abertos():
+        return Chamado.query.filter_by(status='Aberto').all()
+
+
+    @staticmethod
+    def estatisticas_chamados():
+        return Chamado.query.all()
+
+        total = len(chamados)
+        abertos = sum(1 for c in chamados if c.status == 'Aberto')
+        em_atendimento = sum(1 for c in chamados if c.status == 'Em atendimento')
+        encerrados = sum(1 for c in chamados if c.status == 'Encerrado')
+        alta_prioridade = sum(1 for c in chamados if c.prioridade == 'Alta')
+
+        return {
+            'total_geral': total,
+            'abertos': abertos,
+            'em_atendimento': em_atendimento,
+            'encerrados': encerrados,
+            'alta_prioridade': alta_prioridade
+        }

@@ -114,6 +114,4 @@ class ChamadoRepository:
             'em_atendimento': em_atendimento,
             'encerrados': encerrados,
             'alta_prioridade': alta_prioridade
-        }  
-
-      
+        }

@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from helpdesk.database import db
 from helpdesk.models.chamado import Chamado
 from helpdesk.models.usuario import Usuario
+from helpdesk.repositories.chamado_repository import ChamadoRepository
 
 chamado_bp = Blueprint('chamado_bp', __name__)
     

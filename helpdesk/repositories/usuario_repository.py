@@ -1,7 +1,6 @@
 from helpdesk.database import db
 from helpdesk.models.usuario import Usuario
 
-
 class UsuarioRepository:
     
     @staticmethod

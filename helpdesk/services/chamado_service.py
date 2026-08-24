@@ -6,7 +6,7 @@ class ChamadoService:
 
     @staticmethod
     def consulta_chamados():
-        chamados = ChamadoRepository.consulta_tudo()
+        chamados = ChamadoRepository.consulta_chamados()
         return [chamado.to_dict() for chamado in chamados]
 
     @staticmethod
@@ -32,11 +32,6 @@ class ChamadoService:
     @staticmethod
     def exclui_chamado(id: int):
         return ChamadoRepository.excluir_chamado(id)
-
-    @staticmethod
-    def atribuir_tecnico(id: int, tecnico: str):
-        chamado = ChamadoRepository.atribuir_tecnico(id, tecnico)
-        return chamado.to_dict() if chamado else None
 
     @staticmethod
     def inicia_chamado(id: int):

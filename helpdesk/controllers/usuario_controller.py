@@ -4,7 +4,6 @@ from helpdesk.models.usuario import Usuario
 
 usuario_bp = Blueprint('usuario_bp', __name__)
 
-
 class UsuarioController:
 
     @usuario_bp.route('/', methods=['GET'])

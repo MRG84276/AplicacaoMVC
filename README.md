@@ -11,7 +11,7 @@
 ```pip install -r requirements.txt```
 
 ### Caso esteja consifigurado do zero instale os pacotes e gere o arquivo de dependências:
-```pip install flask flask-sqlalchemy```
+```pip install flask flask_sqlalchemy```
 ```pip freeze > requirements.txt```
 
 ### 4. Iniciar a aplicação

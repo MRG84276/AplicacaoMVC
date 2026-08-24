@@ -20,4 +20,8 @@ chamado_bp.add_url_rule('/chamados/<int:id>', view_func=ChamadoController.obter_
 chamado_bp.add_url_rule('/chamados', view_func=ChamadoController.criar_chamado, methods=['POST'])
 chamado_bp.add_url_rule('/chamados/<int:id>', view_func=ChamadoController.atualizar_chamado, methods=['PUT'])
 chamado_bp.add_url_rule('/chamados/<int:id>', view_func=ChamadoController.deletar_chamado, methods=['DELETE'])
+chamado_bp.add_url_rule('/chamados/<int:id>/fechar', view_func=ChamadoController.fechar_chamado, methods=['PATCH'])
+chamado_bp.add_url_rule('/chamados/<int:id>/iniciar', view_func=ChamadoController.iniciar_chamado, methods=['PATCH'])
+chamado_bp.add_url_rule('/chamados/abertos', view_func=ChamadoController.consulta_chamados_abertos, methods=['GET'])
+chamado_bp.add_url_rule('/chamados/prioridade/alta', view_func=ChamadoController.consulta_prioridade_alta, methods=['GET'])
 chamado_bp.add_url_rule('/estatisticas', view_func=ChamadoController.obter_estatisticas, methods=['GET'])

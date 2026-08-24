@@ -44,11 +44,6 @@ class ChamadoService:
         return chamado.to_dict() if chamado else None
 
     @staticmethod
-    def encerra_chamado(id: int):
-        chamado = ChamadoRepository.fechar_chamado(id)
-        return chamado.to_dict() if chamado else None
-
-    @staticmethod
     def fechar_chamado(id: int):
         chamado = ChamadoRepository.fechar_chamado(id)
         return chamado.to_dict() if chamado else None

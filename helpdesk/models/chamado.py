@@ -6,8 +6,8 @@ class Chamado(db.Model):
     __tablename__ = "chamado"
 
     id = db.Column(db.Integer, primary_key=True)
-    titulo = db.Column(db.String(120), nullable=False)
-    descricao = db.Column(db.Text, nullable=False)
+    titulo = db.Column(db.String(5), nullable=False)
+    descricao = db.Column(db.String(10), nullable=False)
     prioridade = db.Column(db.String(20), default="Média", nullable=False)
     status = db.Column(db.String(20), default="Aberto", nullable=False)
     tecnico = db.Column(db.String(80), nullable=True)

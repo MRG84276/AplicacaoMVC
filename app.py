@@ -23,8 +23,8 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-app.register_blueprint(chamado_bp, url_prefix='/chamados')
-app.register_blueprint(usuario_bp, url_prefix='/usuarios')
+app.register_blueprint(chamado_bp)
+app.register_blueprint(usuario_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

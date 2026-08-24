@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from helpdesk.database import db
 from helpdesk.models.usuario import Usuario
+from helpdesk.repositories.usuario_repository import UsuarioRepository
 
 usuario_bp = Blueprint('usuario_bp', __name__)
 

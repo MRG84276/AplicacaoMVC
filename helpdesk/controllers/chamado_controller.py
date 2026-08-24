@@ -4,7 +4,8 @@ from helpdesk.models.chamado import Chamado
 from helpdesk.models.usuario import Usuario
 
 chamado_bp = Blueprint('chamado_bp', __name__)
-
+    
+    
 class ChamadoController:
 
     @chamado_bp.route('/', methods=['GET'])
@@ -61,3 +62,39 @@ class ChamadoController:
     def obter_estatisticas():
         dados_estatisticas = ChamadoRepository.estatisticas_chamados()
         return jsonify(dados_estatisticas), 200
+
+
+    @staticmethod
+    def iniciar_chamado(id):
+        chamado = ChamadoRepository.iniciar_chamado(id)
+        if not chamado:
+            return jsonify({'erro': f'Chamado com ID {id} não encontrado'}), 404
+        return jsonify(chamado.to_dict()), 200
+
+    @staticmethod
+    def fechar_chamado(id):
+        chamado = ChamadoRepository.fechar_chamado(id)
+        if not chamado:
+            return jsonify({'erro': f'Chamado com ID {id} não encontrado'}), 404
+        return jsonify(chamado.to_dict()), 200
+
+    @staticmethod
+    def iniciar_chamado(id):
+        chamado = ChamadoRepository.iniciar_chamado(id)
+        if not chamado:
+            return jsonify({'erro': f'Chamado com ID {id} não encontrado'}), 404
+        return jsonify(chamado.to_dict()), 200
+
+
+    @staticmethod
+    def consulta_chamados_abertos():
+        chamados = ChamadoRepository.consulta_tudo()
+        lista_abertos = [c.to_dict() for c in chamados if c.status == "Aberto"]
+        return jsonify(lista_abertos), 200
+
+    @staticmethod
+    def consulta_prioridade_alta():
+        chamados = ChamadoRepository.consulta_tudo()
+        lista_alta = [c.to_dict() for c in chamados if c.prioridade == "Alta"]
+        return jsonify(lista_alta), 200
+
